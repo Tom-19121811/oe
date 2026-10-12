@@ -1,0 +1,29 @@
+CAMBIO EN LA MACRO (imprescindible para capturar "Peso bruto")
+==============================================================
+El formulario "Digitar" ahora tiene 10 filas de mermas (se agregó
+"Peso bruto (kg)" debajo de "Papel consumido (kg)") y la hoja BD tiene
+la nueva columna "Papel consumido (kg)".
+
+Para que el botón REGISTRAR guarde ambos valores en su columna correcta,
+actualiza UNA función del módulo VBA:
+
+1) Abre el Excel, pulsa Alt + F11 (editor de VBA).
+2) En "mdlDigitar" busca la función MermasBD y reemplázala por:
+
+Private Function MermasBD() As Variant
+    MermasBD = Array("N° bobinas", "Refile (kg)", "Merma operativa (kg)", "Lonja operativa (kg)", "Lonja x defecto (kg)", _
+                     "Merma x arranque (kg)", "Tucos (kg)", "Forro (kg)", "Papel consumido (kg)", "Peso bruto (kg)")
+End Function
+
+3) Guarda (Ctrl+S) manteniendo el formato .xlsm con macros.
+
+Qué queda conectado después del cambio:
+- Formulario fila "Papel consumido (kg)" -> columna BD "Papel consumido (kg)"
+- Formulario fila "Peso bruto (kg)"      -> columna BD "Peso bruto (kg)"
+- El OEE usa "Peso bruto (kg)" como base (denominador) de las mermas:
+  % merma controlable = (lonja operativa + merma operativa + arranque) / peso bruto
+  % merma origen      = lonja x defecto / peso bruto
+
+Nota: si NO aplicas este cambio, el Excel igual abre y registra, pero el
+valor que escribas en "Papel consumido" se seguirá guardando en la columna
+"Peso bruto" (como antes) y las dos columnas nuevas quedarán sin separar.

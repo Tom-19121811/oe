@@ -652,14 +652,14 @@ body:not(.op) .ed-section{margin:0;border-top:0;padding-top:0}
 @media(max-width:1050px){.exec-hero.with-cal{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.exec-hero.with-cal{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.exec-hero.with-cal{grid-template-columns:1fr}}
-.strip.strip-9,.strip.strip-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+.strip.strip-6{grid-template-columns:repeat(6,minmax(0,1fr))}.strip.strip-9,.strip.strip-5{grid-template-columns:repeat(5,minmax(0,1fr))}
 .strip.strip-9>div:nth-child(4){border-left-color:#C2417A!important;background:#FBEAF1!important}.strip.strip-9>div:nth-child(4) b{color:#8E2457}
 .strip.strip-9>div:nth-child(5){border-left-color:#196743!important;background:#EBF5ED!important}.strip.strip-9>div:nth-child(5) b{color:#142D48}
 .strip.strip-9>div:nth-child(6){border-left-color:#B03732!important;background:#FCEDEC!important}.strip.strip-9>div:nth-child(6) b{color:#8E2421}
 .strip.strip-9>div:nth-child(7){border-left-color:#946416!important;background:#FFF3DB!important}.strip.strip-9>div:nth-child(7) b{color:#78500C}
 .strip.strip-9>div:nth-child(8),.strip.strip-9>div:nth-child(9){border-left-color:#6944A6!important;background:#F0EAF8!important}.strip.strip-9>div:nth-child(8) b,.strip.strip-9>div:nth-child(9) b{color:#51327D}
-@media(max-width:860px){.strip.strip-9,.strip.strip-5{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:620px){.strip.strip-9,.strip.strip-5{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:860px){.strip.strip-9,.strip.strip-6,.strip.strip-5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:620px){.strip.strip-9,.strip.strip-6,.strip.strip-5{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .area-control select{width:140px}
 .exec-hero.with-cal .exec-oee{flex-direction:column;align-items:center;text-align:center;gap:10px;padding:20px 16px}
 .exec-hero.with-cal .exec-oee .ring{width:clamp(160px,13vw,200px);height:clamp(160px,13vw,200px)}
@@ -2440,10 +2440,10 @@ function ritmoHTML(rs){
 $('app').addEventListener('click',e=>{const t=e.target.closest('[data-ritmo-todos]');if(!t)return;st.ritmoTodos=!st.ritmoTodos;st._keep=true;render();});
 
 /* ---------- Cuadernos: OEE por familia, merma y estándar diario ---------- */
-const mermaFila=r=>{const x=(RAW.bd[r.i]||[])[9]||{},m=x.m||[];return {peso:+x.peso>0?+x.peso:0,lop:+m[0]||0,ldef:+m[1]||0,mop:+m[2]||0,arr:+m[3]||0,forro:+m[4]||0};};
+const mermaFila=r=>{const x=(RAW.bd[r.i]||[])[9]||{},m=x.m||[];return {peso:+x.peso>0?+x.peso:0,papel:+x.papel>0?+x.papel:0,lop:+m[0]||0,ldef:+m[1]||0,mop:+m[2]||0,arr:+m[3]||0,forro:+m[4]||0};};
 function mermaDe(rs){
- const o={peso:0,lop:0,ldef:0,mop:0,arr:0,forro:0,pz:0,n:0};
- rs.forEach(r=>{const m=mermaFila(r);if(!(m.peso>0))return;for(const k of ['peso','lop','ldef','mop','arr','forro'])o[k]+=m[k];o.pz+=r.pz||0;o.n++;});
+ const o={peso:0,papel:0,lop:0,ldef:0,mop:0,arr:0,forro:0,pz:0,n:0};
+ rs.forEach(r=>{const m=mermaFila(r);if(!(m.peso>0))return;for(const k of ['peso','papel','lop','ldef','mop','arr','forro'])o[k]+=m[k];o.pz+=r.pz||0;o.n++;});
  o.ctrl=o.peso?(o.lop+o.mop+o.arr)/o.peso:null;o.orig=o.peso?o.ldef/o.peso:null;o.kgMil=o.pz?(o.lop+o.mop+o.arr)/o.pz*1000:null;return o;
 }
 function cuadExtrasHTML(C){return familiasOEEHTML(C)+estandarDiarioHTML(C)+mermaHTML(C);}
@@ -2452,7 +2452,16 @@ function familiasOEEHTML(C){
  const L=[...g].map(([fam,rs])=>({fam,T:sumar(rs,rs.reduce((a,r)=>a+r.hr,0)),M:mermaDe(rs)})).sort((a,b)=>b.T.hReg-a.T.hReg);
  if(!L.length)return '';
  const mxH=Math.max(...L.map(x=>x.T.hReg));
- return `<div class="sec-t"><h2>OEE por familia</h2><span>Disponibilidad, rendimiento y calidad de cada familia en sus horas registradas</span></div><div class="card"><div class="tbl-wrap"><table class="t"><thead><tr><th class="l">Familia</th><th>Horas registradas</th><th>Disponibilidad</th><th>Rendimiento</th><th>Calidad</th><th>OEE</th><th>Cuadernos</th><th>Prod. B</th><th>Merma controlable</th></tr></thead><tbody>${L.map(({fam,T,M})=>{const e=estO(T.oee);return `<tr${fam==='Sin familia'?'':` class="mold-filter" role="button" tabindex="0" data-molde="${esc(fam)}" aria-pressed="${st.ml===fam}" style="cursor:pointer"`}><td class="l"><b>${esc(fam)}</b></td><td>${fmt(T.hReg,1)}${avBarra(T.hReg,mxH,'var(--a-prod)')}</td><td>${pc(T.disp,0)}</td><td>${pc(T.rend,0)}</td><td>${T.conNC?pcCal(T.cal):'—'}</td><td><span class="pill ${e[0]}">${e[1]} ${pc(T.oee,0)}</span></td><td>${hc(T.pz)}</td><td>${hc(T.nc)}</td><td>${M.ctrl==null?'—':pc(M.ctrl,2)}</td></tr>`;}).join('')}</tbody></table></div>
+ // Ranking por OEE: solo familias medibles (OEE numérico y no «Sin familia»)
+ const R=L.filter(x=>x.fam!=='Sin familia'&&x.T.oee!=null&&isFinite(x.T.oee)).sort((a,b)=>b.T.oee-a.T.oee);
+ let rankHTML='';
+ if(R.length){
+  const medalla=['🥇','🥈','🥉'];
+  rankHTML=`<div class="sec-t"><h2>Ranking de familias · ¿cuál produce mejor?</h2><span>Ordenadas por OEE del periodo · la mejor primero. Clic filtra el tablero.</span></div>
+  <div class="card"><div class="tbl-wrap"><table class="t"><thead><tr><th>#</th><th class="l">Familia</th><th>OEE</th><th>Disponibilidad</th><th>Rendimiento</th><th>Calidad</th><th>Merma controlable</th><th>Horas</th></tr></thead><tbody>${R.map((x,i)=>{const e=estO(x.T.oee);return `<tr class="mold-filter" role="button" tabindex="0" data-molde="${esc(x.fam)}" aria-pressed="${st.ml===x.fam}" style="cursor:pointer${i===0?';background:var(--good-bg)':''}"><td style="text-align:center;font-weight:700">${medalla[i]||i+1}</td><td class="l"><b>${esc(x.fam)}</b>${i===0?' <span class="pill good">mejor</span>':''}</td><td><span class="pill ${e[0]}">${e[1]} ${pc(x.T.oee,0)}</span></td><td>${pc(x.T.disp,0)}</td><td>${pc(x.T.rend,0)}</td><td>${x.T.conNC?pcCal(x.T.cal):'—'}</td><td>${x.M.ctrl==null?'—':pc(x.M.ctrl,2)}</td><td>${fmt(x.T.hReg,1)}</td></tr>`;}).join('')}</tbody></table></div>
+  <p class="note">La mejor familia del periodo es <b>${esc(R[0].fam)}</b> con OEE ${pc(R[0].T.oee,0)}. Solo entran familias con OEE calculable (horas registradas y estándar).</p></div>`;
+ }
+ return rankHTML+`<div class="sec-t"><h2>OEE por familia</h2><span>Disponibilidad, rendimiento y calidad de cada familia en sus horas registradas</span></div><div class="card"><div class="tbl-wrap"><table class="t"><thead><tr><th class="l">Familia</th><th>Horas registradas</th><th>Disponibilidad</th><th>Rendimiento</th><th>Calidad</th><th>OEE</th><th>Cuadernos</th><th>Prod. B</th><th>Merma controlable</th></tr></thead><tbody>${L.map(({fam,T,M})=>{const e=estO(T.oee);return `<tr${fam==='Sin familia'?'':` class="mold-filter" role="button" tabindex="0" data-molde="${esc(fam)}" aria-pressed="${st.ml===fam}" style="cursor:pointer"`}><td class="l"><b>${esc(fam)}</b></td><td>${fmt(T.hReg,1)}${avBarra(T.hReg,mxH,'var(--a-prod)')}</td><td>${pc(T.disp,0)}</td><td>${pc(T.rend,0)}</td><td>${T.conNC?pcCal(T.cal):'—'}</td><td><span class="pill ${e[0]}">${e[1]} ${pc(T.oee,0)}</span></td><td>${hc(T.pz)}</td><td>${hc(T.nc)}</td><td>${M.ctrl==null?'—':pc(M.ctrl,2)}</td></tr>`;}).join('')}</tbody></table></div>
   <p class="note">Capacidad de cada familia = horas registradas con esa familia. Turnos sin paradas digitadas quedan como «Sin dato para medir». Clic en una familia filtra todo el tablero.</p></div>`;
 }
 function estandarDiarioHTML(C){
@@ -2480,7 +2489,7 @@ function mermaHTML(C){
  const kp=(t,v,s)=>`<div><span>${t}</span><b>${v}</b><small class="mut" style="display:block;font-size:11.5px">${s}</small></div>`;
  const nomMes=k=>MESES[+k.slice(5,7)-1].slice(0,3)+' '+k.slice(2,4);
  return `<div class="sec-t"><h2>Merma · ¿qué familia sale con más merma?</h2><span>Controlable = lonja operativa + merma operativa + arranque · Origen = lonja por defecto del papel</span></div>
- <div class="strip strip-5">${kp('Papel consumido',fmt(T.peso/1000,1)+' t',T.n+' registros con peso')}${kp('Merma controlable',pc(T.ctrl,2),fmt(T.lop+T.mop+T.arr,0)+' kg')}${kp('Merma de origen',pc(T.orig,2),fmt(T.ldef,0)+' kg')}${kp('Merma por 1 000 cuadernos',fmt(T.kgMil,1)+' kg','controlable')}${kp('Forro',fmt(T.forro,0)+' kg','registrado aparte')}</div>
+ <div class="strip strip-6">${kp('Peso bruto',fmt(T.peso/1000,1)+' t',T.n+' registros · base de la merma')}${kp('Papel consumido',T.papel>0?fmt(T.papel/1000,1)+' t':'—',T.papel>0?'neto en producto':'sin registro aún')}${kp('Merma controlable',pc(T.ctrl,2),fmt(T.lop+T.mop+T.arr,0)+' kg')}${kp('Merma de origen',pc(T.orig,2),fmt(T.ldef,0)+' kg')}${kp('Merma por 1 000 cuadernos',fmt(T.kgMil,1)+' kg','controlable')}${kp('Forro',fmt(T.forro,0)+' kg','registrado aparte')}</div>
  <div class="grid g2" style="margin-top:12px"><div class="card"><h3>Por familia</h3><p class="q">De mayor a menor merma controlable. Clic filtra el tablero.</p><div class="tbl-wrap"><table class="t"><thead><tr><th class="l">Familia</th><th>Papel (kg)</th><th>Controlable</th><th>Origen</th><th>kg / 1 000 cuad.</th></tr></thead><tbody>${F.map(({fam,M})=>`<tr${fam==='Sin familia'?'':` class="mold-filter" role="button" tabindex="0" data-molde="${esc(fam)}" aria-pressed="${st.ml===fam}" style="cursor:pointer"`}><td class="l"><b>${esc(fam)}</b></td><td>${fmt(M.peso,0)}</td><td><b>${pc(M.ctrl,2)}</b>${avBarra(M.ctrl||0,mxF,'#E0453A')}</td><td>${pc(M.orig,2)}</td><td>${fmt(M.kgMil,1)}</td></tr>`).join('')}</tbody></table></div></div>
  <div class="card"><h3>Evolución mensual</h3><p class="q">Últimos meses hasta ${fechaDetalle(st.d2)} · máquina y turno de la cabecera.</p><div class="tbl-wrap"><table class="t"><thead><tr><th class="l">Mes</th><th>Papel (t)</th><th>Controlable</th><th>Origen</th><th class="l">Total</th></tr></thead><tbody>${M.map(({mes,M})=>`<tr><td class="l">${nomMes(mes)}</td><td>${fmt(M.peso/1000,1)}</td><td><b>${pc(M.ctrl,2)}</b></td><td>${pc(M.orig,2)}</td><td class="l"><span class="av-mini" style="width:120px"><i style="width:${((M.ctrl||0)/mxM*100).toFixed(1)}%;background:#E0453A"></i><i style="width:${((M.orig||0)/mxM*100).toFixed(1)}%;background:#8A94A6"></i></span></td></tr>`).join('')}</tbody></table></div>
  <div class="legend"><span><i style="background:#E0453A"></i>Controlable (operación)</span><span><i style="background:#8A94A6"></i>Origen (defecto del papel)</span></div></div></div>`;
@@ -2549,7 +2558,7 @@ function leerCuadernos(wb){
  const NOM={fe:'Fecha',hr:'Hrs máquina (fracción)',tu:'Turno',mq:'Máquina',A:'Prod. A (cuadernos)'};
  for(const [k,v] of Object.entries(c))if(v<0)throw new Error('en la hoja BD falta la columna "'+NOM[k]+'"');
  Object.assign(c,{fam:col('Familia'),ot:col('OT'),cod:col('Código artículo'),pr:col('Producto'),B:col('Prod. B (cuadernos)','Prod. B'),peso:col('Peso bruto (kg)'),
-  lop:col('Lonja operativa (kg)'),ldef:col('Lonja x defecto (kg)'),mop:col('Merma operativa (kg)'),arr:col('Merma x arranque (kg)'),forro:col('Forro (kg)'),
+  lop:col('Lonja operativa (kg)'),ldef:col('Lonja x defecto (kg)'),mop:col('Merma operativa (kg)'),arr:col('Merma x arranque (kg)'),forro:col('Forro (kg)'),papel:col('Papel consumido (kg)'),
   enc:col('Encargado'),oper:col('Operador'),dig:col('Paradas digitadas'),ori:col('Origen')});
  // Familias: velocidad estándar y horas produciendo típicas por turno
  const fa=filasDe(hFa),hf=cabeceraDe(fa,'Familia'),HF=(fa[hf]||[]).map(x=>x==null?'':nz(x));
@@ -2575,7 +2584,7 @@ function leerCuadernos(wb){
  const filas=[],par=[];
  for(let i=1;i<bd.length;i++){const r=bd[i];if(!r)continue;const fe=aFecha(r[c.fe]);if(!fe)continue;
   const v=k=>c[k]>=0?numX(r[c[k]]):null,t=k=>c[k]>=0?nz(r[c[k]]):'',A=v('A'),B=v('B'),pz=A==null&&B==null?null:(A||0)+(B||0),cod=c.cod>=0?codigoX(r[c.cod]):'';
-  const dig=sinAc(t('dig')),x={op:c.ot>=0?codigoX(r[c.ot]):'',producto:t('pr'),color:'',encargado:t('enc'),operador:t('oper'),peso:v('peso'),pesoUnidad:'kg',codigo:cod,
+  const dig=sinAc(t('dig')),x={op:c.ot>=0?codigoX(r[c.ot]):'',producto:t('pr'),color:'',encargado:t('enc'),operador:t('oper'),peso:v('peso'),pesoUnidad:'kg',codigo:cod,papel:v('papel'),
    m:[v('lop'),v('ldef'),v('mop'),v('arr'),v('forro')]};
   if(pz!=null)x.nc=B||0;
   if(dig==='no'||dig.startsWith('incomplet'))x.medir=false;
